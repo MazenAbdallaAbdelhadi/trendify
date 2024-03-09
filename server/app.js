@@ -1,11 +1,15 @@
 const path = require("path");
 const express = require("express");
 const cors = require("cors");
+const logger = require("morgan");
 const globalErrorHandler = require("./middleware/globalErrorHandler");
 const errors = require("./utils/response/errors");
 const responseHandler = require("./utils/response/responseHandler");
 
 const app = express();
+
+// LOGGER
+if (process.env.NODE_ENV !== "production") app.use(logger("dev"));
 
 // GLOBAL MIDDLEWARE
 app.use(cors());
@@ -13,7 +17,7 @@ app.use(express.json({ limit: "10kb" }));
 app.use(express.urlencoded({ extended: true }));
 
 // STATIC FOLDER
-app.use(express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "uploads")));
 
 // RESPONSE HANDLER
 app.use(responseHandler);
