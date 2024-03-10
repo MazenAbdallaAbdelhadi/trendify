@@ -7,16 +7,42 @@ const {
   deleteUser,
   uploadProfileImage,
   resizeProfileImage,
+  getLoggedUser,
+  updateLoggedUser,
+  deleteLoggedUser,
+  updateLoggedUserPassword,
+  updateUserPassword,
 } = require("../controller/user.controller");
 const {
   createUserValidator,
   deleteUserValidator,
   getUserValidator,
   updateUserValidator,
+  updateLoggedUserValidator,
+  updateUserPasswordValidator,
 } = require("../utils/validator/user.validator");
+const { protect, allowedRoles } = require("../services/auth");
+const roles = require("../config/roles");
 
 const router = Router();
 
+router.use(protect);
+
+router.get("/getMe", getLoggedUser, getUser);
+router.put(
+  "/updateMe",
+  updateLoggedUserValidator,
+  updateLoggedUser,
+  updateUser
+);
+router.put(
+  "/changeMyPassword",
+  updateUserPasswordValidator,
+  updateLoggedUserPassword
+);
+router.delete("/deleteMe", deleteLoggedUser, deleteUser);
+
+router.use(allowedRoles(roles.ADMIN));
 router
   .route("/")
   .post(uploadProfileImage, resizeProfileImage, createUserValidator, createUser)
@@ -27,5 +53,11 @@ router
   .get(getUserValidator, getUser)
   .put(uploadProfileImage, resizeProfileImage, updateUserValidator, updateUser)
   .delete(deleteUserValidator, deleteUser);
+
+router.put(
+  "/:id/changePassword",
+  updateUserPasswordValidator,
+  updateUserPassword
+);
 
 module.exports = router;

@@ -17,6 +17,20 @@ const validateRole = (val) => {
   return true;
 };
 
+const validateLoggedUserRole = (val) => {
+  const numericRole = parseInt(val);
+
+  if (isNaN(numericRole)) {
+    throw new Error("Role must be a number");
+  }
+
+  if (![roles.CUSTOMER, roles.VENDOR].includes(numericRole)) {
+    throw new Error("invalid role");
+  }
+
+  return true;
+};
+
 exports.createUserValidator = [
   body("name")
     .notEmpty()
@@ -60,6 +74,23 @@ exports.updateUserValidator = [
   validatorMiddleware,
 ];
 
+exports.updateUserPasswordValidator = [
+  body("oldPassword").notEmpty().withMessage("old password is required"),
+  body("newPassword")
+    .notEmpty()
+    .withMessage("new password is required")
+    .isLength({ min: 8 }),
+  body("newPasswordConfirm")
+    .notEmpty()
+    .withMessage("new password confirm is required")
+    .custom((val, { req }) => {
+      if (val !== req.body.newPassword)
+        return Promise.reject("wrong password confirmation");
+
+      return true;
+    }),
+];
+
 exports.getUserValidator = [
   param("id").isMongoId().withMessage("invalid id"),
   validatorMiddleware,
@@ -67,5 +98,17 @@ exports.getUserValidator = [
 
 exports.deleteUserValidator = [
   param("id").isMongoId().withMessage("invalid id"),
+  validatorMiddleware,
+];
+
+exports.updateLoggedUserValidator = [
+  body("name")
+    .optional()
+    .isLength({ min: 3, max: 50 })
+    .withMessage("user name must be between 3 to 50 characters")
+    .trim(),
+  body("role").optional().custom(validateLoggedUserRole),
+  body("profileImage").optional(),
+  body("bio").optional(),
   validatorMiddleware,
 ];
