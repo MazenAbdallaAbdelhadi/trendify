@@ -75,7 +75,6 @@ exports.updateUserValidator = [
 ];
 
 exports.updateUserPasswordValidator = [
-  body("oldPassword").notEmpty().withMessage("old password is required"),
   body("newPassword")
     .notEmpty()
     .withMessage("new password is required")
@@ -89,6 +88,37 @@ exports.updateUserPasswordValidator = [
 
       return true;
     }),
+  validatorMiddleware,
+];
+
+exports.updateLoggedUserPasswordValidator = [
+  body("oldPassword")
+    .notEmpty()
+    .withMessage("old password is required")
+    .custom(async (val, { req }) => {
+      const user = req.user;
+      const isValid = await user.verifyPassword(val);
+
+      if (!isValid) {
+        return Promise.reject("old password is wrong");
+      }
+
+      return true;
+    }),
+  body("newPassword")
+    .notEmpty()
+    .withMessage("new password is required")
+    .isLength({ min: 8 }),
+  body("newPasswordConfirm")
+    .notEmpty()
+    .withMessage("new password confirm is required")
+    .custom((val, { req }) => {
+      if (val !== req.body.newPassword)
+        return Promise.reject("wrong password confirmation");
+
+      return true;
+    }),
+  validatorMiddleware,
 ];
 
 exports.getUserValidator = [

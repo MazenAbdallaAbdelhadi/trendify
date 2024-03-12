@@ -20,6 +20,7 @@ const {
   updateUserValidator,
   updateLoggedUserValidator,
   updateUserPasswordValidator,
+  updateLoggedUserPasswordValidator,
 } = require("../utils/validator/user.validator");
 const { protect, allowedRoles } = require("../services/auth");
 const roles = require("../config/roles");
@@ -31,13 +32,15 @@ router.use(protect);
 router.get("/getMe", getLoggedUser, getUser);
 router.put(
   "/updateMe",
+  uploadProfileImage,
+  resizeProfileImage,
   updateLoggedUserValidator,
   updateLoggedUser,
   updateUser
 );
 router.put(
   "/changeMyPassword",
-  updateUserPasswordValidator,
+  updateLoggedUserPasswordValidator,
   updateLoggedUserPassword
 );
 router.delete("/deleteMe", deleteLoggedUser, deleteUser);

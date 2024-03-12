@@ -1,11 +1,15 @@
-import UserBtn from "./components/auth/user-btn";
+import { Outlet } from "react-router-dom";
+import { ThemeProvider } from "./services/provider/theme-provider";
+import { ThemeSwitch } from "./components/theme-switch";
 
 function App() {
   return (
-    <div>
-      <h1>Welcome to Trendify</h1>
-      <UserBtn />
-    </div>
+    <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
+      <div className="absolute top-6 right-6">
+        <ThemeSwitch />
+      </div>
+      <Outlet />
+    </ThemeProvider>
   );
 }
 

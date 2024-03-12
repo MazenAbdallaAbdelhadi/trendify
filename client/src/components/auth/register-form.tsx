@@ -3,16 +3,15 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-
-import { AlertCircle } from "lucide-react";
+import { toast } from "sonner";
 
 import { useRegisterMutation } from "@/services/api/auth";
 import { registerSchema } from "@/lib/schema/auth";
 import { extractError } from "@/lib/utils";
-import { Alert, AlertDescription, AlertTitle } from "../ui/alert";
 import { Form } from "../ui/form";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
+import { Textarea } from "../ui/textarea";
 import InputField from "../form/input-field";
 import InputFile from "../form/input-file";
 
@@ -60,40 +59,67 @@ const RegisterForm = () => {
     }
   }, [isSuccess, navigate, from]);
 
+  // 5- alert errors
+  useEffect(() => {
+    if (error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const e = extractError<any>(error);
+      if (e.data && e.data instanceof Array)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        e.data.forEach((fieldError: any) => {
+          if (fieldError.msg) {
+            form.setError(
+              "root.server_error",
+              {
+                type: "server side",
+                message: fieldError.msg,
+              },
+              { shouldFocus: true }
+            );
+            toast.error(fieldError.msg, { closeButton: true });
+          }
+        });
+    }
+  }, [isError, error, form]);
+
+  // 7- if there is dublicated email error clear it on field change
+  const check = form.watch("email");
+  useEffect(() => {
+    form.clearErrors("root.server_error");
+  }, [check, form]);
+
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(handleRegister)} className="space-y-4">
-        {/* error alert */}
-        {isError && (
-          <Alert variant="destructive">
-            <AlertCircle className="h-4 w-4" />
-            <AlertTitle>ERROR</AlertTitle>
-            <AlertDescription>{extractError(error).msg}</AlertDescription>
-          </Alert>
-        )}
+      <form onSubmit={form.handleSubmit(handleRegister)} className="space-y-4 ">
+        <InputFile label="Profile Image" name="profileImage" />
 
-        <InputField name="name" label="Name">
-          <Input placeholder="user@example.com" />
+        <InputField name="name" label="Name *">
+          <Input placeholder="John Doe" />
         </InputField>
 
-        <InputField name="email" label="Email">
+        <InputField name="email" label="Email *">
           <Input placeholder="user@example.com" />
         </InputField>
+        <span className="text-sm text-destructive font-medium">
+          {form.formState.errors?.root?.server_error?.message}
+        </span>
 
-        <InputField name="password" label="Password">
-          <Input placeholder="**********" />
+        <InputField name="password" label="Password *">
+          <Input placeholder="**********" type="password" autoComplete="on" />
         </InputField>
 
         <InputField name="bio" label="Bio">
-          <Input placeholder="something about you." />
+          <Textarea
+            placeholder="something about you."
+            className="resize-none"
+          />
         </InputField>
 
-        {/*TODO ADD PROFILE IMAGE PREVIEW */}
-        <InputFile label="Profile Image" name="profileImage" />
-
-        <Button type="submit" disabled={isPending}>
-          Register
-        </Button>
+        <div className="flex gap-2">
+          <Button type="submit" disabled={isPending}>
+            Register
+          </Button>
+        </div>
       </form>
     </Form>
   );

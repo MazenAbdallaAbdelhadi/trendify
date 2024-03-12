@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
 const asyncHandler = require("express-async-handler");
-const UserToken = require("../models/user-token.model");
+const User = require("../models/user.model");
 const { unAuthorized } = require("../utils/response/errors");
 
 exports.generateAccessToken = function (payload) {
@@ -49,17 +49,14 @@ exports.protect = asyncHandler(async function (req, res, next) {
   }
 
   // 3- check if token was issued before last changed password
-  const credential = await UserToken.findOne({
-    user: decoded.userId,
-    token: token,
-  }).populate("user");
+  const user = await User.findById(decoded.userId);
 
   // if user not found
-  if (!credential) return next(unAuthorized({ message: "unAuthorized" }));
+  if (!user) return next(unAuthorized({ message: "unAuthorized" }));
 
-  if (credential.user?.passwordChangedAt) {
+  if (user?.passwordChangedAt) {
     const passChangedTimestamp = parseInt(
-      credential.user?.passwordChangedAt.getTime() / 1000,
+      user?.passwordChangedAt.getTime() / 1000,
       10
     );
 
@@ -73,7 +70,7 @@ exports.protect = asyncHandler(async function (req, res, next) {
   }
 
   // 4- set user to request object
-  req.user = credential.user;
+  req.user = user;
   next();
 });
 

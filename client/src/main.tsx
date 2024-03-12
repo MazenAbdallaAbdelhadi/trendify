@@ -14,16 +14,22 @@ import store from "./services/state/store.ts";
 
 const router = createBrowserRouter([
   {
-    path: "/",
     element: <App />,
-  },
-  {
-    path: "/login",
-    element: <LoginPage />,
-  },
-  {
-    path: "/register",
-    element: <RegisterPage />,
+    children: [
+      {
+        path: "/",
+        element: "welcome home",
+      },
+
+      {
+        path: "/login",
+        element: <LoginPage />,
+      },
+      {
+        path: "/register",
+        element: <RegisterPage />,
+      },
+    ],
   },
 ]);
 
@@ -34,7 +40,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
     <Provider store={store}>
       <QueryClientProvider client={client}>
         <RouterProvider router={router} />
-        <Toaster />
+        <Toaster pauseWhenPageIsHidden position="top-right" />
       </QueryClientProvider>
     </Provider>
   </React.StrictMode>

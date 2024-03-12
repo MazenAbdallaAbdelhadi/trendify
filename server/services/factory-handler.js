@@ -1,5 +1,6 @@
 const asyncHandler = require("express-async-handler");
 const errors = require("../utils/response/errors");
+const ApiFeatures = require("./api-features");
 
 exports.createOne = (Model) =>
   asyncHandler(async (req, res) => {
@@ -24,9 +25,34 @@ exports.getAll = (Model) =>
 
 exports.paginate = (Model, searchFields) =>
   asyncHandler(async (req, res) => {
-    // TODO add pagination functionality
-    const documents = await Model.find();
-    res.success({data:documents});
+    const { mongooseQuery: countQuery } = new ApiFeatures(
+      Model.find({}),
+      req.query
+    )
+      .filter()
+      .search(searchFields);
+
+    const countDocs = await countQuery.countDocuments();
+
+    const { mongooseQuery, paginationResult } = new ApiFeatures(
+      Model.find({}),
+      req.query
+    )
+      .filter()
+      .search(searchFields)
+      .limitFields()
+      .sort()
+      .paginate(countDocs);
+
+    const docs = await mongooseQuery;
+
+    res.success({
+      data: {
+        results: docs.length,
+        paginationResult,
+        docs,
+      },
+    });
   });
 
 exports.updateOne = (Model) =>

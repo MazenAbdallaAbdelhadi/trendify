@@ -67,7 +67,21 @@ exports.updateUser = updateOne(User);
  * @path PUT /v1/users/:id/changePassword
  * @access private ADMIN
  */
-exports.updateUserPassword = updateOne(User);
+exports.updateUserPassword = asyncHandler(async (req, res) => {
+  // 1- get user from req object
+  const user = await User.findById(req.params.id);
+
+  // 2- update user password and save it to database
+  user.password = req.body.newPassword;
+  user.passwordChangedAt = Date.now();
+  await user.save();
+
+  // 3- delete all user tokens
+  await UserToken.deleteMany({ user: user._id });
+
+  // 6- send access token to user
+  res.success({ message: "user password updated" });
+});
 
 /**
  * @desc delete user by id
@@ -106,7 +120,7 @@ exports.updateLoggedUserPassword = asyncHandler(async (req, res) => {
   const { user } = req;
 
   // 2- update user password and save it to database
-  user.password = req.body.password;
+  user.password = req.body.newPassword;
   user.passwordChangedAt = Date.now();
   await user.save();
 
@@ -120,7 +134,7 @@ exports.updateLoggedUserPassword = asyncHandler(async (req, res) => {
   await UserToken.create({ user: user._id, token: refreshToken });
 
   // 5- set refresh token in header
-  setRefreshTokenCookie(req, refreshToken);
+  setRefreshTokenCookie(res, refreshToken);
 
   // 6- send access token to user
   res.success({ data: { token: accessToken } });
