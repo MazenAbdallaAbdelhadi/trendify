@@ -12,3 +12,5 @@ export const registerSchema = z.object({
   bio: z.string().optional(),
   profileImage: z.instanceof(File).optional(),
 });
+
+

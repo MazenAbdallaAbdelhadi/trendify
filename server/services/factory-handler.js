@@ -30,7 +30,7 @@ exports.paginate = (Model, searchFields) =>
       req.query
     )
       .filter()
-      .search(searchFields);
+      .search(...searchFields);
 
     const countDocs = await countQuery.countDocuments();
 
@@ -39,7 +39,7 @@ exports.paginate = (Model, searchFields) =>
       req.query
     )
       .filter()
-      .search(searchFields)
+      .search(...searchFields)
       .limitFields()
       .sort()
       .paginate(countDocs);

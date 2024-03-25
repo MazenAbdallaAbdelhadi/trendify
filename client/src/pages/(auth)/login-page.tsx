@@ -7,6 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 const LoginPage = () => {
   return (
@@ -24,7 +25,14 @@ const LoginPage = () => {
             <LoginForm />
           </CardContent>
 
-          <CardFooter></CardFooter>
+          <CardFooter>
+            <p>
+              Don't have an account?
+              <Link to="/register" className="underline">
+                Register
+              </Link>
+            </p>
+          </CardFooter>
         </Card>
       </div>
     </div>

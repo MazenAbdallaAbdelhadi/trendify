@@ -104,8 +104,8 @@ exports.refresh = asyncHandler(async (req, res, next) => {
   const refreshToken = generateRefreshToken({ userId: decoded.userId });
 
   // 6- save refrehs token in database and delete old one
-  await UserToken.create({ user: decoded.userId, token: refreshToken });
   await tokenExists.deleteOne();
+  await UserToken.create({ user: decoded.userId, token: refreshToken });
 
   // 7- set refresh token as httpOnly cookie
   setRefreshTokenCookie(res, refreshToken);

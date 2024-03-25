@@ -1,4 +1,4 @@
-const { body, param } = require("express-validator");
+const { body, param, checkExact } = require("express-validator");
 const roles = require("../../config/roles");
 const User = require("../../models/user.model");
 const validatorMiddleware = require("../../middleware/validatorMiddleware");
@@ -59,6 +59,7 @@ exports.createUserValidator = [
   body("role").optional().custom(validateRole),
   body("profileImage").optional(),
   body("bio").optional(),
+  checkExact(),
   validatorMiddleware,
 ];
 
@@ -71,6 +72,7 @@ exports.updateUserValidator = [
   body("role").optional().custom(validateRole),
   body("profileImage").optional(),
   body("bio").optional(),
+  checkExact(),
   validatorMiddleware,
 ];
 
@@ -88,6 +90,7 @@ exports.updateUserPasswordValidator = [
 
       return true;
     }),
+  checkExact(),
   validatorMiddleware,
 ];
 
@@ -118,16 +121,19 @@ exports.updateLoggedUserPasswordValidator = [
 
       return true;
     }),
+  checkExact(),
   validatorMiddleware,
 ];
 
 exports.getUserValidator = [
   param("id").isMongoId().withMessage("invalid id"),
+  checkExact(),
   validatorMiddleware,
 ];
 
 exports.deleteUserValidator = [
   param("id").isMongoId().withMessage("invalid id"),
+  checkExact(),
   validatorMiddleware,
 ];
 
@@ -140,5 +146,6 @@ exports.updateLoggedUserValidator = [
   body("role").optional().custom(validateLoggedUserRole),
   body("profileImage").optional(),
   body("bio").optional(),
+  checkExact(),
   validatorMiddleware,
 ];

@@ -7,11 +7,12 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import { Link } from "react-router-dom";
 
 const RegisterPage = () => {
   return (
     <div className="min-h-screen w-full flex justify-center items-center">
-      <div>
+      <div className="p-8">
         <Card>
           <CardHeader>
             <CardTitle>Join Trendify Today ❤️</CardTitle>
@@ -24,7 +25,14 @@ const RegisterPage = () => {
             <RegisterForm />
           </CardContent>
 
-          <CardFooter></CardFooter>
+          <CardFooter>
+            <p>
+              already have an account?
+              <Link to="/login" className="underline">
+                Login
+              </Link>
+            </p>
+          </CardFooter>
         </Card>
       </div>
     </div>

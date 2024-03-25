@@ -60,11 +60,15 @@ const LoginForm = () => {
         )}
 
         <InputField name="email" label="Email">
-          <Input placeholder="user@example.com" />
+          <Input placeholder="user@example.com" autoComplete="email" />
         </InputField>
 
         <InputField name="password" label="Password">
-          <Input placeholder="**********" />
+          <Input
+            type="password"
+            placeholder="**********"
+            autoComplete="current-password"
+          />
         </InputField>
 
         <Button type="submit" disabled={isPending}>

@@ -35,11 +35,11 @@ class ApiFeatures {
         $or: [],
       };
 
-      searchFields.forEach((searchField) =>
+      searchFields.forEach((searchField) => {
         query.$or.push({
-          [searchField]: { $regex: this.queryString.keyword, options: "i" },
-        })
-      );
+          [searchField]: { $regex: this.queryString.keyword, $options: "i" },
+        });
+      });
 
       this.mongooseQuery = this.mongooseQuery.find(query);
     }
@@ -60,15 +60,16 @@ class ApiFeatures {
   }
 
   paginate(documentCount) {
-    const page = this.queryString.page * 1 || 1;
-    const limit = this.queryString.limit * 1 || 20;
-    const skip = (page - 1) * limit;
-    const endIndex = page * limit;
+    const page = Number(this.queryString.page) || 0;
+    const limit = Number(this.queryString.limit) || 20;
+    const skip = page * limit;
+    const endIndex = (page + 1) * limit;
 
     const pagination = {
       currentPage: page,
       limit,
       numberOfPages: Math.ceil(documentCount / limit),
+      documentCount,
     };
 
     if (endIndex < documentCount) {

@@ -1,4 +1,4 @@
-const { body } = require("express-validator");
+const { body, checkExact } = require("express-validator");
 const User = require("../../models/user.model");
 const validatorMiddleware = require("../../middleware/validatorMiddleware");
 
@@ -28,6 +28,7 @@ exports.registerValidator = [
     .withMessage("password must be at least 8 characters"),
   body("bio").optional(),
   body("profileImage").optional(),
+  checkExact(),
   validatorMiddleware,
 ];
 
@@ -38,5 +39,6 @@ exports.loginValidator = [
     .isEmail()
     .withMessage("email must be a valid email address"),
   body("password").notEmpty().withMessage("password is required"),
+  checkExact(),
   validatorMiddleware,
 ];

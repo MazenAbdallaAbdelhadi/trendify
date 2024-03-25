@@ -3,7 +3,7 @@ import { z } from "zod";
 
 import { apiInstance } from "./api";
 import { useAppDispatch } from "../state/store";
-import { setToken } from "../state/authSlice";
+import { setToken, setUser } from "../state/authSlice";
 import { extractResponse } from "@/lib/utils";
 import { loginSchema } from "@/lib/schema/auth";
 
@@ -22,6 +22,7 @@ export const useRegisterMutation = () => {
 
   return useMutation({
     mutationFn: register,
+    mutationKey: ["profile"],
     onSuccess: (data) => {
       const { data: d, msg } = extractResponse<ResponstData>(data);
       console.log(" ---------- USE_REGISTER_MUTATION ---------- ");
@@ -52,6 +53,7 @@ export const useLoginMutation = () => {
 
   return useMutation({
     mutationFn: login,
+    mutationKey: ["profile"],
     onSuccess: (data) => {
       const { data: d, msg } = extractResponse<ResponstData>(data);
       console.log(" ---------- USE_LOGIN_MUTATION ---------- ");
@@ -69,7 +71,6 @@ export const useLoginMutation = () => {
 
 export const useRefresh = () => {
   const dispatch = useAppDispatch();
-
   const refresh = async () => {
     try {
       const res = await apiInstance.get("/v1/auth/refresh", {
@@ -80,13 +81,14 @@ export const useRefresh = () => {
         token: string;
       };
 
-      const d = extractResponse<ResponseData>(res);
+      const { data } = extractResponse<ResponseData>(res);
 
       dispatch(
         setToken({
-          token: d.data?.token,
+          token: data?.token,
         })
       );
+      return data?.token;
     } catch (err) {
       console.log(" ---------- USE_REFRESH ---------- ");
       console.log(err);
@@ -94,4 +96,22 @@ export const useRefresh = () => {
   };
 
   return refresh;
+};
+
+export const useLogoutMutaion = () => {
+  const dispatch = useAppDispatch();
+
+  const logout = async () => {
+    return apiInstance.delete("/v1/auth/logout", {
+      withCredentials: true,
+    });
+  };
+
+  return useMutation({
+    mutationFn: logout,
+    onSuccess: () => {
+      dispatch(setUser({ user: null }));
+      dispatch(setToken({ token: null }));
+    },
+  });
 };
