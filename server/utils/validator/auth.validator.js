@@ -11,9 +11,9 @@ exports.registerValidator = [
     .trim(),
   body("email")
     .notEmpty()
-    .withMessage("email is required")
+    .withMessage("Email is required")
     .isEmail()
-    .withMessage("email must be a valid email address")
+    .withMessage("Email must be a valid Email address")
     .custom(async (input) => {
       const userExist = await User.findOne({ email: input });
 
@@ -35,10 +35,51 @@ exports.registerValidator = [
 exports.loginValidator = [
   body("email")
     .notEmpty()
-    .withMessage("email is required")
+    .withMessage("Email is required")
     .isEmail()
-    .withMessage("email must be a valid email address"),
+    .withMessage("Email must be a valid Email address"),
   body("password").notEmpty().withMessage("password is required"),
+  checkExact(),
+  validatorMiddleware,
+];
+
+exports.forgetPasswordValidator = [
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Email must be a valid email address"),
+  checkExact(),
+  validatorMiddleware,
+];
+
+exports.confirmOTPValidator = [
+  body("resetCode")
+    .notEmpty()
+    .withMessage("reset code is required")
+    .isLength({ max: 6, min: 6 })
+    .withMessage("reset code must be 6 numbers"),
+  checkExact(),
+  validatorMiddleware,
+];
+
+exports.resetPasswordValidator = [
+  body("email")
+    .notEmpty()
+    .withMessage("Email is required")
+    .isEmail()
+    .withMessage("Email must be valid"),
+  body("password")
+    .notEmpty()
+    .withMessage("Password is required")
+    .isLength({ min: 8 })
+    .withMessage("Too Short Password"),
+  body("passwordConfirm")
+    .notEmpty()
+    .withMessage("confirm password is required")
+    .custom((input, { req }) => {
+      return req.body.password === input;
+    }),
   checkExact(),
   validatorMiddleware,
 ];
