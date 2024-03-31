@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const roles = require("../config/roles");
+const { enumFormObject } = require("../utils/helper/enum-from-object");
 
 const userSchema = new mongoose.Schema(
   {
@@ -25,9 +26,26 @@ const userSchema = new mongoose.Schema(
     passwordResetVerified: Boolean,
     role: {
       type: Number,
-      enum: [roles.ADMIN, roles.VENDOR, roles.CUSTOMER],
+      enum: enumFormObject(roles),
       default: roles.CUSTOMER,
     },
+    // child reference (one to many)
+    wishlist: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Product",
+      },
+    ],
+    addresses: [
+      {
+        id: { type: mongoose.Schema.ObjectId },
+        alias: String,
+        details: String,
+        phone: String,
+        city: String,
+        postalCode: String,
+      },
+    ],
   },
   {
     timestamps: true,
